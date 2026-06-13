@@ -81,11 +81,15 @@ jobs:
           HUFREA_ARCH="${{ matrix.hufrea_arch }}"
           wget -q "https://github.com/hufrea/byedpi/releases/download/${TAG}/byedpi-${ARCHIVE_VER}-${HUFREA_ARCH}.tar.gz" \
             -O binary.tar.gz
-          tar xzf binary.tar.gz --wildcards --no-anchored 'ciadpi' --strip-components=1 2>/dev/null \
-            || tar xzf binary.tar.gz
-          BINARY=$(find . -maxdepth 2 -name 'ciadpi' -type f | head -1)
+          tar xzf binary.tar.gz
+          BINARY=$(find . -name 'ciadpi*' -type f | head -1)
+          if [ -z "$BINARY" ]; then
+            echo "ERROR: ciadpi binary not found in archive. Archive contents:"
+            tar tzf binary.tar.gz
+            exit 1
+          fi
           chmod +x "$BINARY"
-          [ "$BINARY" != "./ciadpi" ] && mv "$BINARY" ./ciadpi
+          mv "$BINARY" ./ciadpi
 
       - name: Setup APK signing key
         # Optional: add SIGN_PRIVATE_KEY (base64-encoded usign private key) to
